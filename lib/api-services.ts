@@ -21,6 +21,8 @@ import type {
   LinkCodeResponse,
   Expenses,
   Expense,
+  StatisticCompany,
+  StatisticSupplier,
 } from "./api-types"
 
 // Сервис для работы с аутентификацией
@@ -167,7 +169,7 @@ export const suppliersService = {
 export const expensesService = {
   // Получение всех расходов
   getExpenses: async (): Promise<Expenses> => {
-    return apiClient.get<Expenses>(`${API_BASE_URL}/expenses`)
+    return apiClient.get<Expenses>(`${API_BASE_URL}/expenses/`)
   },
 
   // Обновление количества расхода
@@ -178,5 +180,18 @@ export const expensesService = {
   // Удаление расхода
   deleteExpense: async (expenseId: number): Promise<void> => {
     return apiClient.delete<void>(`${API_BASE_URL}/expenses/${expenseId}/`)
+  },
+}
+
+// Сервис для работы со статистикой dashboard
+export const dashboardService = {
+  // Получение статистики для компании
+  getCompanyStats: async (): Promise<StatisticCompany> => {
+    return apiClient.get<StatisticCompany>(`${API_BASE_URL}/dashboard/company`)
+  },
+
+  // Получение статистики для поставщика
+  getSupplierStats: async (): Promise<StatisticSupplier> => {
+    return apiClient.get<StatisticSupplier>(`${API_BASE_URL}/dashboard/supplier`)
   },
 }

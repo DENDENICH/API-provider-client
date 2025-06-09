@@ -209,3 +209,25 @@ export interface AddUserByLinkCodeRequest {
 export interface UpdateExpenseQuantityRequest {
   quantity: number
 }
+
+// Типы для статистики dashboard
+export interface SuppliesStatisticOfMonthItem {
+  month: string
+  count: number
+}
+
+export interface StatisticCompany {
+  count_adopted_products: number
+  all_supplies_count: number
+  is_wait_confirm_supplies_count: number
+  organizers_contract_count: number
+  supplies_statistic_of_month: SuppliesStatisticOfMonthItem[]
+}
+
+export interface StatisticSupplier {
+  all_products_count: number
+  all_supplies_count: number
+  is_wait_confirm_supplies_count: number
+  organizers_contract_count: number
+  supplies_statistic_of_month: SuppliesStatisticOfMonthItem[]
+}

@@ -1,7 +1,64 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icons } from "@/components/icons"
+import { dashboardService } from "@/lib/api-services"
+import type { StatisticSupplier } from "@/lib/api-types"
 
 export function SupplierDashboard() {
+  const [stats, setStats] = useState<StatisticSupplier | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        setIsLoading(true)
+        const data = await dashboardService.getSupplierStats()
+        setStats(data)
+      } catch (err) {
+        console.error("Error loading supplier stats:", err)
+        setError("Не удалось загрузить статистику")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadStats()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+            </CardHeader>
+            <CardContent>
+              <div className="h-8 w-16 bg-muted animate-pulse rounded mb-2" />
+              <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
+  if (error || !stats) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="col-span-4">
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">{error || "Не удалось загрузить статистику"}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -10,8 +67,8 @@ export function SupplierDashboard() {
           <Icons.package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">95</div>
-          <p className="text-xs text-muted-foreground">+8% с прошлого месяца</p>
+          <div className="text-2xl font-bold">{stats.all_supplies_count}</div>
+          <p className="text-xs text-muted-foreground">Общее количество поставок</p>
         </CardContent>
       </Card>
       <Card>
@@ -20,8 +77,8 @@ export function SupplierDashboard() {
           <Icons.fileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">12</div>
-          <p className="text-xs text-muted-foreground">+3 за последнюю неделю</p>
+          <div className="text-2xl font-bold">{stats.is_wait_confirm_supplies_count}</div>
+          <p className="text-xs text-muted-foreground">Ожидают подтверждения</p>
         </CardContent>
       </Card>
       <Card>
@@ -42,8 +99,8 @@ export function SupplierDashboard() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">1,254</div>
-          <p className="text-xs text-muted-foreground">+156 за последний месяц</p>
+          <div className="text-2xl font-bold">{stats.all_products_count}</div>
+          <p className="text-xs text-muted-foreground">Доступных товаров</p>
         </CardContent>
       </Card>
       <Card>
@@ -52,8 +109,8 @@ export function SupplierDashboard() {
           <Icons.users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">18</div>
-          <p className="text-xs text-muted-foreground">+2 с прошлого месяца</p>
+          <div className="text-2xl font-bold">{stats.organizers_contract_count}</div>
+          <p className="text-xs text-muted-foreground">Активных клиентов</p>
         </CardContent>
       </Card>
     </div>

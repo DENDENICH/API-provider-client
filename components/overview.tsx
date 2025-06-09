@@ -1,65 +1,35 @@
 "use client"
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import type { SuppliesStatisticOfMonthItem } from "@/lib/api-types"
 
-const data = [
-  {
-    name: "Янв",
-    total: 12,
-  },
-  {
-    name: "Фев",
-    total: 16,
-  },
-  {
-    name: "Мар",
-    total: 18,
-  },
-  {
-    name: "Апр",
-    total: 14,
-  },
-  {
-    name: "Май",
-    total: 22,
-  },
-  {
-    name: "Июн",
-    total: 26,
-  },
-  {
-    name: "Июл",
-    total: 24,
-  },
-  {
-    name: "Авг",
-    total: 28,
-  },
-  {
-    name: "Сен",
-    total: 32,
-  },
-  {
-    name: "Окт",
-    total: 30,
-  },
-  {
-    name: "Ноя",
-    total: 36,
-  },
-  {
-    name: "Дек",
-    total: 42,
-  },
-]
+interface OverviewProps {
+  data?: SuppliesStatisticOfMonthItem[]
+}
 
-export function Overview() {
+export function Overview({ data }: OverviewProps) {
+  // Если данные не переданы, используем заглушку
+  const chartData = data || [
+    { month: "Янв", count: 0 },
+    { month: "Фев", count: 0 },
+    { month: "Мар", count: 0 },
+    { month: "Апр", count: 0 },
+    { month: "Май", count: 0 },
+    { month: "Июн", count: 0 },
+    { month: "Июл", count: 0 },
+    { month: "Авг", count: 0 },
+    { month: "Сен", count: 0 },
+    { month: "Окт", count: 0 },
+    { month: "Ноя", count: 0 },
+    { month: "Дек", count: 0 },
+  ]
+
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
-        <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+      <BarChart data={chartData}>
+        <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
         <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
-        <Bar dataKey="total" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
+        <Bar dataKey="count" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
       </BarChart>
     </ResponsiveContainer>
   )
