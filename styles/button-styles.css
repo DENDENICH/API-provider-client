@@ -1,0 +1,13 @@
+.orange-button {
+  background-color: #f97316 !important; /* orange-500 */
+  color: white !important;
+}
+
+.orange-button:hover {
+  background-color: #ea580c !important; /* orange-600 */
+}
+
+.orange-button:focus {
+  outline: 2px solid #fdba74 !important; /* orange-300 */
+  outline-offset: 2px;
+}
