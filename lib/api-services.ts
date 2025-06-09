@@ -108,11 +108,17 @@ export const productsService = {
 // Сервис для работы с поставками
 export const suppliesService = {
   // Получение списка поставок
-  getSupplies: async (isWaitConfirm?: boolean): Promise<SuppliesResponse> => {
+  getSupplies: async (isWaitConfirm?: boolean, limit?: number): Promise<SuppliesResponse> => {
     let url = `${API_BASE_URL}/supplies`
-    if (isWaitConfirm !== undefined) {
-      url += `?is_wait_confirm=${isWaitConfirm}`
+    const params = []
+
+    if (isWaitConfirm !== undefined) params.push(`is_wait_confirm=${isWaitConfirm}`)
+    if (limit !== undefined) params.push(`limit=${limit}`)
+
+    if (params.length > 0) {
+      url += `?${params.join("&")}`
     }
+
     return apiClient.get<SuppliesResponse>(url)
   },
 

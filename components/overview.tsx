@@ -7,22 +7,45 @@ interface OverviewProps {
   data?: SuppliesStatisticOfMonthItem[]
 }
 
+// Функция для преобразования формата месяца из "2025-05" в "Май"
+const formatMonth = (monthString: string): string => {
+  const monthNames = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
+
+  try {
+    const [year, month] = monthString.split("-")
+    const monthIndex = Number.parseInt(month, 10) - 1
+    return monthNames[monthIndex] || monthString
+  } catch {
+    return monthString
+  }
+}
+
+// Функция для создания полного набора данных за год
+const prepareChartData = (apiData?: SuppliesStatisticOfMonthItem[]) => {
+  const monthNames = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
+
+  // Создаем базовый массив с нулевыми значениями
+  const chartData = monthNames.map((month) => ({
+    month,
+    count: 0,
+  }))
+
+  // Если есть данные от API, обновляем соответствующие месяцы
+  if (apiData && apiData.length > 0) {
+    apiData.forEach((item) => {
+      const formattedMonth = formatMonth(item.month)
+      const monthIndex = monthNames.indexOf(formattedMonth)
+      if (monthIndex !== -1) {
+        chartData[monthIndex].count = item.count
+      }
+    })
+  }
+
+  return chartData
+}
+
 export function Overview({ data }: OverviewProps) {
-  // Если данные не переданы, используем заглушку
-  const chartData = data || [
-    { month: "Янв", count: 0 },
-    { month: "Фев", count: 0 },
-    { month: "Мар", count: 0 },
-    { month: "Апр", count: 0 },
-    { month: "Май", count: 0 },
-    { month: "Июн", count: 0 },
-    { month: "Июл", count: 0 },
-    { month: "Авг", count: 0 },
-    { month: "Сен", count: 0 },
-    { month: "Окт", count: 0 },
-    { month: "Ноя", count: 0 },
-    { month: "Дек", count: 0 },
-  ]
+  const chartData = prepareChartData(data)
 
   return (
     <ResponsiveContainer width="100%" height={350}>

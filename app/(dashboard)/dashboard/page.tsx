@@ -1,51 +1,53 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useAuth } from "@/contexts/auth-context"
+import { CompanyDashboard } from "@/components/company-dashboard"
+import { SupplierDashboard } from "@/components/supplier-dashboard"
+import { NotOrganizerDashboard } from "@/components/not-organizer-dashboard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Overview } from "@/components/overview"
 import { RecentDeliveries } from "@/components/recent-deliveries"
-import { CompanyDashboard } from "@/components/company-dashboard"
-import { SupplierDashboard } from "@/components/supplier-dashboard"
-import { NotOrganizerDashboard } from "@/components/not-organizer-dashboard"
-import { useAuth } from "@/contexts/auth-context"
+import { useState, useEffect } from "react"
 import { dashboardService } from "@/lib/api-services"
-import type { StatisticCompany, StatisticSupplier } from "@/lib/api-types"
+import type { StatisticCompany, StatisticSupplier, SuppliesStatisticOfMonthItem } from "@/lib/api-types"
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const [companyStats, setCompanyStats] = useState<StatisticCompany | null>(null)
-  const [supplierStats, setSupplierStats] = useState<StatisticSupplier | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [chartData, setChartData] = useState<SuppliesStatisticOfMonthItem[]>([])
+  const [isLoadingChart, setIsLoadingChart] = useState(true)
 
   useEffect(() => {
-    const loadDashboardData = async () => {
+    const loadChartData = async () => {
       if (!user?.organizerRole || user.organizerRole === "not_have_organizer") {
-        setIsLoading(false)
+        setIsLoadingChart(false)
         return
       }
 
       try {
-        setIsLoading(true)
+        setIsLoadingChart(true)
+        let stats: StatisticCompany | StatisticSupplier
+
         if (user.organizerRole === "company") {
-          const data = await dashboardService.getCompanyStats()
-          setCompanyStats(data)
-        } else if (user.organizerRole === "supplier") {
-          const data = await dashboardService.getSupplierStats()
-          setSupplierStats(data)
+          stats = await dashboardService.getCompanyStats()
+        } else {
+          stats = await dashboardService.getSupplierStats()
         }
+
+        setChartData(stats.supplies_statistic_of_month || [])
       } catch (error) {
-        console.error("Error loading dashboard data:", error)
+        console.error("Error loading chart data:", error)
+        setChartData([])
       } finally {
-        setIsLoading(false)
+        setIsLoadingChart(false)
       }
     }
 
-    loadDashboardData()
-  }, [user])
+    loadChartData()
+  }, [user?.organizerRole])
 
   // Если пользователь не имеет организации
-  if (user?.organizerRole === "not_have_organizer") {
+  if (!user?.organizerRole || user.organizerRole === "not_have_organizer") {
     return <NotOrganizerDashboard />
   }
 
@@ -60,22 +62,22 @@ export default function DashboardPage() {
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           {/* Статистические карточки */}
-          {user?.organizerRole === "company" && <CompanyDashboard />}
-          {user?.organizerRole === "supplier" && <SupplierDashboard />}
+          {user.organizerRole === "company" ? <CompanyDashboard /> : <SupplierDashboard />}
 
+          {/* Графики и дополнительная информация */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
               <CardHeader>
                 <CardTitle>Обзор</CardTitle>
               </CardHeader>
               <CardContent className="pl-2">
-                <Overview
-                  data={
-                    user?.organizerRole === "company"
-                      ? companyStats?.supplies_statistic_of_month
-                      : supplierStats?.supplies_statistic_of_month
-                  }
-                />
+                {isLoadingChart ? (
+                  <div className="h-[350px] flex items-center justify-center">
+                    <div className="text-muted-foreground">Загрузка графика...</div>
+                  </div>
+                ) : (
+                  <Overview data={chartData} />
+                )}
               </CardContent>
             </Card>
             <Card className="col-span-3">
