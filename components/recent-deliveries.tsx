@@ -83,8 +83,12 @@ export function RecentDeliveries() {
         setLoading(true)
         setError(null)
 
+        console.log("Fetching recent supplies with limit 5...")
         const response = await suppliesService.getSupplies(undefined, 5)
-        setSupplies(response.supplies)
+        console.log("Received supplies response:", response)
+        console.log("Number of supplies received:", response.supplies?.length || 0)
+
+        setSupplies(response.supplies || [])
       } catch (err: any) {
         console.error("Error loading recent supplies:", err)
 
@@ -102,10 +106,13 @@ export function RecentDeliveries() {
     fetchRecentSupplies()
   }, [])
 
+  console.log("Current supplies state:", supplies)
+  console.log("Number of supplies to render:", supplies.length)
+
   if (loading) {
     return (
       <div className="space-y-8">
-        {[...Array(3)].map((_, i) => (
+        {[...Array(5)].map((_, i) => (
           <div key={i} className="flex items-center animate-pulse">
             <div className="h-9 w-9 bg-gray-200 rounded-full" />
             <div className="ml-4 space-y-1 flex-1">
@@ -147,8 +154,14 @@ export function RecentDeliveries() {
 
   return (
     <div className="space-y-8">
-      {supplies.map((supply) => {
+      {supplies.map((supply, index) => {
         const organizationName = getOrganizationName(supply, user?.organizerRole)
+
+        console.log(`Rendering supply ${index + 1}:`, {
+          id: supply.id,
+          organizationName,
+          status: supply.status,
+        })
 
         return (
           <div key={supply.id} className="flex items-center">
